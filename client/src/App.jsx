@@ -1,11 +1,7 @@
+import Home from "./pages/Home/Home";
+
 function App() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950">
-      <h1 className="text-5xl font-bold text-white">
-        Welcome to Intervia
-      </h1>
-    </div>
-  )
+  return <Home />;
 }
 
-export default App
+export default App;
