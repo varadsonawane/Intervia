@@ -7,9 +7,8 @@ function Home() {
       <Navbar />
       <main>
         <Hero />
- <HowItWorks />
-        {/* We'll add more sections here */}
-        {/* <HowItWorks /> */}
+        <HowItWorks />
+       
         {/* <Features /> */}
         {/* <Pricing /> */}
       </main>
