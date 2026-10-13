@@ -4,34 +4,16 @@ import InterviewerCard from "./InterviewerCard";
 
 const interviewers = [
   {
-    id: "payal",
-    name: "Payal",
-    language: "IN English",
-    avatar: "https://i.pravatar.cc/100?img=47",
+    id: "sarah",
+    name: "Sarah",
+    language: "English · Female interviewer",
+    avatar: "/avatars/sarah.png",
   },
   {
-    id: "emma",
-    name: "Emma",
-    language: "US English",
-    avatar: "https://i.pravatar.cc/100?img=44",
-  },
-  {
-    id: "jatin",
-    name: "Jatin",
-    language: "IN English",
-    avatar: "https://i.pravatar.cc/100?img=12",
-  },
-  {
-    id: "john",
-    name: "John",
-    language: "US English",
-    avatar: "https://i.pravatar.cc/100?img=11",
-  },
-  {
-    id: "kapil",
-    name: "Kapil",
-    language: "IN English",
-    avatar: "https://i.pravatar.cc/100?img=13",
+    id: "alex",
+    name: "Alex",
+    language: "English · Male interviewer",
+    avatar: "/avatars/alex.png",
   },
 ];
 
@@ -49,7 +31,7 @@ function InterviewDetails({ onClose }) {
   const [resume, setResume] = useState(null);
   const [selectedRound, setSelectedRound] = useState("warmup");
   const [duration, setDuration] = useState(5);
-  const [selectedInterviewer, setSelectedInterviewer] = useState("john");
+  const [selectedInterviewer, setSelectedInterviewer] = useState("alex");
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [agreed, setAgreed] = useState(false);

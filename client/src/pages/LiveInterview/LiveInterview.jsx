@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVoiceAgent } from "../../hooks/useVoiceAgent";
+import RealisticAvatar from "../../components/RealisticAvatar/RealisticAvatar";
 
 const STATUS_LABELS = {
   disconnected: "Ready to begin",
@@ -14,30 +15,17 @@ const STATUS_LABELS = {
 };
 
 const INTERVIEWER_PROFILES = {
-  payal: {
-    name: "Payal",
-    image:
-      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=85",
+  sarah: {
+    name: "Sarah",
+    image: "/avatars/sarah.png",
+    video: "/avatars/sarah-speaking.mp4",
+    voiceId: "sarah",
   },
-  emma: {
-    name: "Emma",
-    image:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1400&q=85",
-  },
-  jatin: {
-    name: "Jatin",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1400&q=85",
-  },
-  john: {
-    name: "John",
-    image:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1400&q=85",
-  },
-  kapil: {
-    name: "Kapil",
-    image:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1400&q=85",
+  alex: {
+    name: "Alex",
+    image: "/avatars/alex.png",
+    video: "/avatars/alex-speaking.mp4",
+    voiceId: "alex",
   },
 };
 
@@ -81,7 +69,13 @@ function LiveInterview() {
     interviewer,
   } = useVoiceAgent(
     config.jobRole || "Software Engineer",
-    config.interviewer || "john",
+    INTERVIEWER_PROFILES[
+      (["payal", "emma"].includes((config.interviewer || "").toLowerCase())
+        ? "sarah"
+        : (config.interviewer || "alex").toLowerCase() === "john"
+          ? "alex"
+          : (config.interviewer || "alex").toLowerCase())
+    ]?.voiceId || "alex",
     config.round || "warmup"
   );
 
@@ -115,15 +109,28 @@ function LiveInterview() {
   const canStart =
     status === "disconnected" || status === "error";
 
-  const selectedInterviewer =
-    INTERVIEWER_PROFILES[config.interviewer] ||
-    INTERVIEWER_PROFILES.john;
+  const rawInterviewerId = (
+    config.interviewer || "alex"
+  ).toLowerCase();
 
-  const interviewerName =
-    interviewer?.name || selectedInterviewer.name;
+  // Normalize older saved selections to the two currently supported interviewers.
+  const selectedInterviewerId = ["payal", "emma"].includes(rawInterviewerId)
+    ? "sarah"
+    : rawInterviewerId === "john"
+      ? "alex"
+      : rawInterviewerId;
 
-  const interviewerImage = selectedInterviewer.image;
+  const isFemaleInterviewer = selectedInterviewerId === "sarah";
 
+  const avatarName = isFemaleInterviewer ? "Sarah" : "Alex";
+  const selectedInterviewer = isFemaleInterviewer
+    ? INTERVIEWER_PROFILES.sarah
+    : INTERVIEWER_PROFILES.alex;
+
+  // Keep the displayed interviewer name consistent with the two available avatars.
+  const interviewerName = avatarName;
+  const avatarImage = selectedInterviewer.image;
+  const avatarVideo = selectedInterviewer.video;
   const statusLabel = STATUS_LABELS[status] || status;
 
   // Display the latest AI question.
@@ -388,69 +395,21 @@ function LiveInterview() {
               isSpeaking ? "interviewer-speaking" : ""
             }`}
           >
-            <img
-              src={interviewerImage}
-              alt={`${interviewerName}, AI interviewer`}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              onError={(event) => {
-                event.currentTarget.style.display = "none";
-              }}
+            <RealisticAvatar
+              name={avatarName}
+              image={avatarImage}
+              video={avatarVideo}
+              isSpeaking={isSpeaking}
             />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/10" />
-
-            {/* Interviewer identity */}
-            <div className="absolute left-4 top-4 flex items-center gap-3 rounded-full border border-white/20 bg-black/35 px-3 py-2 backdrop-blur-md sm:left-6 sm:top-6">
-              <span
-                className={`h-2.5 w-2.5 rounded-full ${
-                  isSpeaking
-                    ? "animate-pulse bg-violet-400"
-                    : "bg-emerald-400"
-                }`}
-              />
-
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {interviewerName}
-                </p>
-
-                <p className="text-[10px] text-white/70">
-                  AI INTERVIEWER
-                </p>
-              </div>
-            </div>
-
             {/* Timer badge */}
-            <div className="absolute bottom-4 left-4 rounded-full bg-white px-4 py-2 font-mono text-lg font-bold text-slate-900 shadow-lg sm:bottom-6 sm:left-6">
+            <div className="absolute bottom-4 left-4 z-10 rounded-full bg-white px-4 py-2 font-mono text-lg font-bold text-slate-900 shadow-lg sm:bottom-6 sm:left-6">
               {formatTime(remainingSeconds)}
             </div>
 
-            {/* Speaking indicator */}
-            {isSpeaking && (
-              <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-4 py-2 backdrop-blur-md">
-                {[12, 20, 15, 25, 14, 20, 11].map(
-                  (height, index) => (
-                    <span
-                      key={index}
-                      style={{
-                        height: `${height}px`,
-                        animationDelay: `${index * 70}ms`,
-                      }}
-                      className="audio-wave w-1 rounded-full bg-violet-300"
-                    />
-                  )
-                )}
-
-                <span className="ml-2 text-xs font-medium text-white">
-                  Speaking
-                </span>
-              </div>
-            )}
-
             {/* Start button */}
             {!isInterviewActive && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10">
                 <button
                   type="button"
                   onClick={handleStartInterview}
