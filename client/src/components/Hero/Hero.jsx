@@ -28,7 +28,7 @@ function Hero() {
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <a
-              href="/register"
+              href="interview/setup"
               className="group flex w-full items-center justify-center gap-2 rounded-full bg-violet-600 px-7 py-4 font-semibold text-white shadow-lg shadow-violet-600/25 transition duration-300 hover:-translate-y-1 hover:bg-violet-700 hover:shadow-xl hover:shadow-violet-600/30 sm:w-auto"
             >
               Start your free interview
