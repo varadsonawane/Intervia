@@ -62,6 +62,7 @@ function LiveInterview() {
     connect,
     disconnect,
     toggleMicrophone,
+    sendText,
     status,
     transcript,
     error: voiceError,
@@ -89,6 +90,7 @@ function LiveInterview() {
   const [deviceError, setDeviceError] = useState("");
   const [isInterviewActive, setIsInterviewActive] = useState(false);
   const [showTranscript, setShowTranscript] = useState(true);
+  const [typedAnswer, setTypedAnswer] = useState("");
 
   const [currentQuestion, setCurrentQuestion] = useState(
     "Your interview question will appear here."
@@ -319,6 +321,19 @@ function LiveInterview() {
         message.role === "human"
     );
 
+  const handleSendTypedAnswer = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const message = typedAnswer.trim();
+      if (!message || !isInterviewActive) return;
+
+      const sent = sendText(message);
+      if (sent) setTypedAnswer("");
+    },
+    [typedAnswer, isInterviewActive, sendText]
+  );
+
   return (
     <main className="min-h-screen bg-[#fbfaff] text-slate-900">
       <style>
@@ -509,6 +524,56 @@ function LiveInterview() {
                 End Interview
               </button>
             )}
+          </section>
+
+          {/* Text fallback for candidates when speech recognition is inaccurate */}
+          <section className="rounded-xl border border-violet-100 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-3">
+              <h2 className="font-bold text-slate-900">
+                Prefer typing your answer?
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                If your voice is not recognised correctly, type your answer
+                here and send it to the interviewer.
+              </p>
+            </div>
+
+            <form onSubmit={handleSendTypedAnswer} className="space-y-3">
+              <label htmlFor="typed-interview-answer" className="sr-only">
+                Type your interview answer
+              </label>
+              <textarea
+                id="typed-interview-answer"
+                value={typedAnswer}
+                onChange={(event) => setTypedAnswer(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    event.currentTarget.form?.requestSubmit();
+                  }
+                }}
+                rows={3}
+                maxLength={5000}
+                placeholder="Type your answer here… (Enter to send, Shift + Enter for a new line)"
+                disabled={!isInterviewActive}
+                className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+              />
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs text-slate-400">
+                  {!isInterviewActive
+                    ? "Start the interview to send a text answer."
+                    : "Your typed answer joins the same interview conversation."}
+                </p>
+                <button
+                  type="submit"
+                  disabled={!isInterviewActive || !typedAnswer.trim()}
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Send answer
+                </button>
+              </div>
+            </form>
           </section>
 
           {/* Errors */}

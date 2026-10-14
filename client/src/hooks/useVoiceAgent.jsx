@@ -462,6 +462,30 @@ Begin by greeting the candidate and asking the first question appropriate for th
     setStatus("disconnected");
   }, [setSpeaking]);
 
+  // Send a typed candidate answer through the same Voice Agent conversation.
+  const sendText = useCallback((content) => {
+    const message = String(content ?? "").trim();
+
+    if (!message) return false;
+
+    const session = sessionRef.current;
+
+    if (!session) {
+      setError("Start the interview before sending a text answer.");
+      return false;
+    }
+
+    try {
+      session.injectUserMessage(message);
+      setError("");
+      return true;
+    } catch (sendError) {
+      console.error("Unable to send typed answer:", sendError);
+      setError(sendError?.message || "Unable to send your text answer.");
+      return false;
+    }
+  }, []);
+
   // Toggle microphone mute.
   const toggleMicrophone = useCallback(() => {
     const microphone = microphoneRef.current;
@@ -517,6 +541,7 @@ Begin by greeting the candidate and asking the first question appropriate for th
     connect,
     disconnect,
     toggleMicrophone,
+    sendText,
     status,
     transcript,
     error,
